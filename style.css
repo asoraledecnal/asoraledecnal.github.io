@@ -1,11 +1,30 @@
 body {
     font-family: sans-serif;
     line-height: 1.6;
-    background-color: #f4f4f4;
+    background-color: #e0f7fa; /* Changed background color */
     color: #333;
     padding: 20px;
+    text-align: center;
 }
 
 h1 {
-    color: #0056b3;
+    color: #00796b; /* Changed heading color */
+}
+
+h2 {
+    color: #555;
+}
+
+button {
+    background-color: #00796b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #004d40;
 }
