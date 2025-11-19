@@ -2,6 +2,8 @@ services:
   - type: web
     name: project-vantage-backend
     env: python
-    buildCommand: "apt-get update && apt-get install -y iputils-ping && pip install -r requirements.txt"
+    packages:
+      - name: iputils-ping
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
     plan: free
