@@ -2,15 +2,14 @@ from flask import Flask, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-import os # Import os module to handle file paths
+import os
 import platform
 import subprocess
 
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True) # supports_credentials=True is needed for sessions
+CORS(app, supports_credentials=True)
 
-# In a real app, this should be a long, random string loaded from an environment variable
 app.secret_key = 'dev-secret-key'
 
 # Database Configuration
@@ -22,7 +21,7 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False) # Store hashed passwords
+    password = db.Column(db.String(120), nullable=False)
 
     def __repr__(self):
         return f'<User {self.email}>'
@@ -42,7 +41,6 @@ def signup():
     email = data['email']
     password = data['password']
 
-    # Check if user already exists in the database
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         return jsonify({"message": "User with this email already exists!"}), 409
@@ -71,14 +69,11 @@ def login():
     email = data['email']
     password = data['password']
 
-    # Find the user in the database by their email
     user = User.query.filter_by(email=email).first()
 
-    # Check if the user exists and the password is correct
     if not user or not check_password_hash(user.password, password):
-        return jsonify({"message": "Invalid email or password"}), 401 # 401 Unauthorized
+        return jsonify({"message": "Invalid email or password"}), 401
     
-    # Store user_id in the session to remember the user
     session['user_id'] = user.id
 
     return jsonify({"message": "Login successful!"}), 200
@@ -91,12 +86,10 @@ def ping_host():
 
     host = data['host']
     
-    # Determine the ping command based on the OS
     param = '-n' if platform.system().lower() == 'windows' else '-c'
     command = ['ping', param, '1', host]
 
     try:
-        # Execute the ping command
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=5)
         
         if result.returncode == 0:
