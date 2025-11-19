@@ -1,37 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // IMPORTANT: Replace this with your deployed backend URL when you go live
+    const BACKEND_URL = "https://project-vantage-backend-ih0i.onrender.com";
+    // For local testing, use: const BACKEND_URL = "http://127.0.0.1:5000";
+
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
     const messageDiv = document.getElementById('message');
 
-    // Reusable function to handle form submissions for login and signup
-    const handleFormSubmit = async (form, endpoint) => {
+    // Reusable function for login/signup form submissions
+    const handleAuthFormSubmit = async (form, endpoint) => {
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
 
             const email = form.querySelector('#email').value;
             const password = form.querySelector('#password').value;
-
-            if (messageDiv) {
-                messageDiv.textContent = '';
-                messageDiv.style.display = 'none';
-            }
+            if (messageDiv) messageDiv.style.display = 'none';
 
             try {
-                const response = await fetch(`https://project-vantage-backend-ih0i.onrender.com${endpoint}`, {
+                const response = await fetch(`${BACKEND_URL}${endpoint}`, {
                     method: 'POST',
                     credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password }),
                 });
 
                 const result = await response.json();
-                
                 if (messageDiv) {
-                    messageDiv.style.display = 'block';
                     messageDiv.textContent = result.message;
+                    messageDiv.style.display = 'block';
                 }
 
                 if (response.ok) {
@@ -44,105 +41,93 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (messageDiv) messageDiv.className = 'message error';
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Auth form error:', error);
                 if (messageDiv) {
-                    messageDiv.style.display = 'block';
-                    messageDiv.textContent = 'An unexpected network error occurred.';
+                    messageDiv.textContent = 'A network error occurred.';
                     messageDiv.className = 'message error';
+                    messageDiv.style.display = 'block';
                 }
             }
         });
     };
 
-    // Attach listeners to forms if they exist on the current page
     if (loginForm) {
-        handleFormSubmit(loginForm, '/api/login');
+        handleAuthFormSubmit(loginForm, '/api/login');
     }
-
     if (signupForm) {
-        handleFormSubmit(signupForm, '/api/signup');
+        handleAuthFormSubmit(signupForm, '/api/signup');
     }
 
-    // --- Ping Utility Logic ---
+    // Ping Utility Logic
     const pingForm = document.getElementById('ping-form');
     if (pingForm) {
         pingForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const pingHostInput = document.getElementById('ping-host');
+
             const pingResultsDiv = document.getElementById('ping-results');
             const host = pingHostInput.value.trim();
-
             if (!host) {
-                pingResultsDiv.textContent = 'Please enter a host to ping.';
+                pingResultsDiv.textContent = 'Please enter a host.';
                 return;
             }
-
-            pingResultsDiv.textContent = 'Pinging...';
+            pingResultsDiv.textContent = `Pinging ${host}...`;
 
             try {
-                const response = await fetch('https://project-vantage-backend-ih0i.onrender.com/api/ping', {
+                const response = await fetch(`${BACKEND_URL}/api/ping`, {
                     method: 'POST',
                     credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ host }),
                 });
 
                 const result = await response.json();
-
                 if (response.ok) {
-                    pingResultsDiv.textContent = `Host: ${result.host}\nStatus: ${result.status}\nOutput:\n${result.output}`;
+                    pingResultsDiv.textContent = `Host: ${result.host}\nStatus: ${result.status}\n\n${result.output}`;
                 } else {
-                    pingResultsDiv.textContent = `Error: ${result.error || 'Unknown error'}`;
+                    pingResultsDiv.textContent = `Error: ${result.message || result.error}`;
                 }
             } catch (error) {
-                console.error('Ping request failed:', error);
-                pingResultsDiv.textContent = 'An error occurred while trying to ping.';
+                console.error('Ping error:', error);
+                pingResultsDiv.textContent = 'A network error occurred.';
             }
         });
     }
 
-    // --- Logout Logic ---
+    // Logout Logic
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async (event) => {
             event.preventDefault();
             try {
-                await fetch('https://project-vantage-backend-ih0i.onrender.com/api/logout', {
+                await fetch(`${BACKEND_URL}/api/logout`, {
                     method: 'POST',
                     credentials: 'include',
                 });
-            } catch (error) {
-                console.error('Logout request failed, redirecting anyway.', error);
             } finally {
                 window.location.href = 'login.html';
             }
         });
     }
 
-    // --- Dashboard Protection ---
+    // Dashboard Protection
     // This self-executing async function checks the user's session when on the dashboard page.
-    if (window.location.pathname.endsWith('dashboard.html')) {
+    if (document.body.id === 'dashboard-page') {
         (async () => {
             try {
-                const response = await fetch('https://project-vantage-backend-ih0i.onrender.com/api/check_session', {
+                const response = await fetch(`${BACKEND_URL}/api/check_session`, {
                     method: 'GET',
                     credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                 });
 
                 if (!response.ok) {
-                    window.location.href = 'login.html';
+                    window.location.href = 'login.html'; // Redirect if not logged in
                 }
             } catch (error) {
-                console.error('Session check failed, redirecting to login.', error);
-                window.location.href = 'login.html';
+                console.error('Session check failed:', error);
+                window.location.href = 'login.html'; // Redirect on network error
             }
         })();
     }
-
 });
-// Force update to fix syntax issues in previous commits.
