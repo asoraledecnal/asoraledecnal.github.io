@@ -1,21 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // IMPORTANT: Replace this with your deployed backend URL when you go live
+    // Backend URL
     const BACKEND_URL = "https://project-vantage-backend-ih0i.onrender.com";
-    // For local testing, use: const BACKEND_URL = "http://127.0.0.1:5000";
 
+    // Forms and message containers
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
-    const messageDiv = document.getElementById('message');
+    const loginMessageDiv = loginForm ? loginForm.querySelector('.message') : null;
+    const signupMessageDiv = signupForm ? signupForm.querySelector('.message') : null;
 
-    // Reusable function for login/signup form submissions
-    const handleAuthFormSubmit = async (form, endpoint) => {
+    // Utility: Show message in a div
+    const showMessage = (div, message, type = 'info') => {
+        if (!div) return;
+        div.textContent = message;
+        div.className = `message ${type}`;
+        div.style.display = 'block';
+    };
+
+    // Utility: Hide message
+    const hideMessage = (div) => {
+        if (!div) return;
+        div.style.display = 'none';
+    };
+
+    // Handle login/signup form submission
+    const setupAuthForm = (form, endpoint, messageDiv, onSuccessRedirect) => {
+        if (!form) return;
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
+            hideMessage(messageDiv);
 
-            const email = form.querySelector('#email').value;
-            const password = form.querySelector('#password').value;
-            if (messageDiv) messageDiv.style.display = 'none';
+            const emailInput = form.querySelector('input[name="email"]');
+            const passwordInput = form.querySelector('input[name="password"]');
+
+            const email = emailInput?.value.trim();
+            const password = passwordInput?.value.trim();
+
+            if (!email || !password) {
+                showMessage(messageDiv, 'Email and password are required.', 'error');
+                return;
+            }
 
             try {
                 const response = await fetch(`${BACKEND_URL}${endpoint}`, {
@@ -26,51 +49,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const result = await response.json();
-                if (messageDiv) {
-                    messageDiv.textContent = result.message;
-                    messageDiv.style.display = 'block';
-                }
 
                 if (response.ok) {
-                    if (messageDiv) messageDiv.className = 'message success';
-                    if (endpoint === '/api/login') {
-                        window.location.href = 'dashboard.html';
-                    }
+                    showMessage(messageDiv, result.message || 'Success!', 'success');
                     form.reset();
+                    if (onSuccessRedirect) window.location.href = onSuccessRedirect;
                 } else {
-                    if (messageDiv) messageDiv.className = 'message error';
+                    showMessage(messageDiv, result.message || 'Authentication failed.', 'error');
                 }
             } catch (error) {
-                console.error('Auth form error:', error);
-                if (messageDiv) {
-                    messageDiv.textContent = 'A network error occurred.';
-                    messageDiv.className = 'message error';
-                    messageDiv.style.display = 'block';
-                }
+                console.error(`${endpoint} error:`, error);
+                showMessage(messageDiv, 'A network error occurred.', 'error');
             }
         });
     };
 
-    if (loginForm) {
-        handleAuthFormSubmit(loginForm, '/api/login');
-    }
-    if (signupForm) {
-        handleAuthFormSubmit(signupForm, '/api/signup');
-    }
+    setupAuthForm(loginForm, '/api/login', loginMessageDiv, 'dashboard.html');
+    setupAuthForm(signupForm, '/api/signup', signupMessageDiv);
 
-    // Ping Utility Logic
+    // Ping Utility
     const pingForm = document.getElementById('ping-form');
     if (pingForm) {
+        const pingHostInput = pingForm.querySelector('input[name="host"]');
+        const pingResultsDiv = pingForm.querySelector('#ping-results');
+
         pingForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            const pingHostInput = document.getElementById('ping-host');
+            if (!pingHostInput || !pingResultsDiv) return;
 
-            const pingResultsDiv = document.getElementById('ping-results');
             const host = pingHostInput.value.trim();
             if (!host) {
                 pingResultsDiv.textContent = 'Please enter a host.';
                 return;
             }
+
             pingResultsDiv.textContent = `Pinging ${host}...`;
 
             try {
@@ -83,9 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const result = await response.json();
                 if (response.ok) {
-                    pingResultsDiv.textContent = `Host: ${result.host}\nStatus: ${result.status}\n\n${result.output}`;
+                    // Use <pre> formatting for multi-line output
+                    pingResultsDiv.innerHTML = `<pre>Host: ${result.host}\nStatus: ${result.status}\n\n${result.output}</pre>`;
                 } else {
-                    pingResultsDiv.textContent = `Error: ${result.message || result.error}`;
+                    pingResultsDiv.textContent = `Error: ${result.message || result.error || 'Unknown error'}`;
                 }
             } catch (error) {
                 console.error('Ping error:', error);
@@ -94,24 +107,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Logout Logic
+    // Logout
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async (event) => {
             event.preventDefault();
             try {
-                await fetch(`${BACKEND_URL}/api/logout`, {
+                const response = await fetch(`${BACKEND_URL}/api/logout`, {
                     method: 'POST',
                     credentials: 'include',
                 });
+                if (!response.ok) console.warn('Logout may have failed.');
+            } catch (error) {
+                console.error('Logout error:', error);
             } finally {
                 window.location.href = 'login.html';
             }
         });
     }
 
-    // Dashboard Protection
-    // This self-executing async function checks the user's session when on the dashboard page.
+    // Dashboard session check
     if (document.body.id === 'dashboard-page') {
         (async () => {
             try {
@@ -122,11 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (!response.ok) {
-                    window.location.href = 'login.html'; // Redirect if not logged in
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const result = await response.json();
+                if (!result.active) {
+                    window.location.href = 'login.html';
                 }
             } catch (error) {
                 console.error('Session check failed:', error);
-                window.location.href = 'login.html'; // Redirect on network error
+                window.location.href = 'login.html';
             }
         })();
     }
