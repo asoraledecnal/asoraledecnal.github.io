@@ -21,16 +21,50 @@
     </header>
 
     <main class="dashboard-container">
-        <h2>Welcome to Your Dashboard!</h2>
-        <p>This is where your network monitoring data will be displayed.</p>
+        <h2>Network Tools</h2>
         
-        <div class="ping-widget">
-            <h3>Ping Utility</h3>
-            <form id="ping-form">
-                <input type="text" id="ping-host" placeholder="Enter host or IP (e.g., google.com)">
-                <button type="submit">Ping</button>
-            </form>
-            <pre id="ping-results"></pre>
+        <div class="tabs">
+            <button class="tab-link active" data-tab="ping-tab">Ping</button>
+            <button class="tab-link" data-tab="port-scan-tab">Port Scan</button>
+            <button class="tab-link" data-tab="traceroute-tab">Traceroute</button>
+        </div>
+
+        <div id="ping-tab" class="tab-content active">
+            <div class="widget">
+                <h3><span class="icon">📶</span>Ping Utility</h3>
+                <form id="ping-form">
+                    <input type="text" id="ping-host" placeholder="Enter host or IP (e.g., google.com)">
+                    <button type="submit">Ping</button>
+                </form>
+                <div id="ping-results-summary" class="results-summary"></div>
+                <details id="ping-details" class="log-details" style="display: none;">
+                    <summary>Show Full Log</summary>
+                    <pre id="ping-results-raw" class="results-area"></pre>
+                </details>
+            </div>
+        </div>
+
+        <div id="port-scan-tab" class="tab-content">
+            <div class="widget">
+                <h3><span class="icon">🔌</span>Port Scanner</h3>
+                <form id="port-scan-form">
+                    <input type="text" id="scan-host" placeholder="Enter host or IP">
+                    <input type="number" id="scan-port" placeholder="Port (e.g., 80, 443)">
+                    <button type="submit">Scan</button>
+                </form>
+                <div id="port-scan-results" class="results-summary"></div>
+            </div>
+        </div>
+
+        <div id="traceroute-tab" class="tab-content">
+            <div class="widget">
+                <h3><span class="icon">🗺️</span>Traceroute Utility</h3>
+                <form id="traceroute-form">
+                    <input type="text" id="trace-host" placeholder="Enter host or IP (e.g., google.com)">
+                    <button type="submit">Trace</button>
+                </form>
+                <pre id="traceroute-results" class="results-area"></pre>
+            </div>
         </div>
 
     </main>

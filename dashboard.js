@@ -1,78 +1,156 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Configuration ---
-    // This should be the base URL of your deployed backend.
     const BACKEND_URL = "https://project-vantage-backend-ih0i.onrender.com";
-    // For local testing, you would use:
-    // const BACKEND_URL = "http://127.0.0.1:5000";
+    // For local testing: const BACKEND_URL = "http://127.0.0.1:5000";
 
     // --- Dashboard Protection ---
-    // Immediately check for a valid session upon loading the dashboard script.
-    // This self-executing async function is the "gatekeeper" for the page.
     (async () => {
         try {
             const response = await fetch(`${BACKEND_URL}/api/check_session`, {
                 method: 'GET',
-                // This is crucial for sending the session cookie
                 credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
             });
-
-            // If the response is not OK (e.g., 401 Unauthorized),
-            // the user is not logged in, so redirect them.
-            if (!response.ok) {
-                window.location.href = 'login.html';
-            }
-            // If the response is OK, do nothing. The user is allowed to be here.
-
+            if (!response.ok) { window.location.href = 'login.html'; }
         } catch (error) {
-            // This catches network errors (e.g., backend is down).
-            // If we can't verify the session, we must assume the user is not logged in.
             console.error('Session check network error:', error);
             window.location.href = 'login.html';
         }
     })();
 
+    // --- Tabbed Interface Logic ---
+    const tabs = document.querySelector('.tabs');
+    if (tabs) {
+        tabs.addEventListener('click', (e) => {
+            if (e.target.classList.contains('tab-link')) {
+                document.querySelectorAll('.tab-link').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                e.target.classList.add('active');
+                document.getElementById(e.target.dataset.tab).classList.add('active');
+            }
+        });
+    }
 
     // --- Ping Utility Logic ---
     const pingForm = document.getElementById('ping-form');
     if (pingForm) {
         pingForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            const pingHostInput = document.getElementById('ping-host');
-            const pingResultsDiv = document.getElementById('ping-results');
-            const host = pingHostInput.value.trim();
+            const hostInput = document.getElementById('ping-host');
+            const summaryDiv = document.getElementById('ping-results-summary');
+            const details = document.getElementById('ping-details');
+            const rawResultsPre = document.getElementById('ping-results-raw');
+            
+            const host = hostInput.value.trim();
+            summaryDiv.style.display = 'block';
+            details.style.display = 'none';
 
             if (!host) {
-                pingResultsDiv.textContent = 'Please enter a host.';
+                summaryDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> Please enter a host.`;
                 return;
             }
-            pingResultsDiv.textContent = `Pinging ${host}...`;
+            summaryDiv.innerHTML = `<span class="status"><span class="status-dot"></span></span> Pinging ${host}...`;
 
             try {
                 const response = await fetch(`${BACKEND_URL}/api/ping`, {
-                    method: 'POST',
-                    // This is crucial for sending the session cookie
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ host }),
                 });
-
                 const result = await response.json();
+                
                 if (response.ok) {
-                    pingResultsDiv.textContent = `Host: ${result.host}\nStatus: ${result.status}\n\n${result.output}`;
+                    if (result.status === 'online') {
+                        summaryDiv.innerHTML = `<span class="status"><span class="status-dot status-online"></span></span><strong>Status:</strong> Online<br>
+                                                <strong>Host:</strong> ${result.host}<br>
+                                                <strong>Response Time:</strong> ${result.time || 'N/A'}`;
+                    } else {
+                        summaryDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span><strong>Status:</strong> Offline<br>
+                                                <strong>Host:</strong> ${result.host}`;
+                    }
+                    rawResultsPre.textContent = result.raw_output;
+                    details.style.display = 'block';
                 } else {
-                    // This handles backend errors, including the "Unauthorized" error
-                    // if the session is somehow lost between page load and this action.
-                    pingResultsDiv.textContent = `Error: ${result.message || result.error}`;
+                    summaryDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> Error: ${result.message || result.error}`;
                 }
             } catch (error) {
                 console.error('Ping error:', error);
-                pingResultsDiv.textContent = 'A network error occurred.';
+                summaryDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> A network error occurred.`;
+            }
+        });
+    }
+
+    // --- Port Scan Utility Logic ---
+    const portScanForm = document.getElementById('port-scan-form');
+    if (portScanForm) {
+        portScanForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const hostInput = document.getElementById('scan-host');
+            const portInput = document.getElementById('scan-port');
+            const resultsDiv = document.getElementById('port-scan-results');
+            
+            const host = hostInput.value.trim();
+            const port = portInput.value.trim();
+            resultsDiv.style.display = 'block';
+
+            if (!host || !port) {
+                resultsDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> Please enter both a host and a port.`;
+                return;
+            }
+            resultsDiv.innerHTML = `<span class="status"><span class="status-dot"></span></span> Scanning port ${port} on ${host}...`;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/port_scan`, {
+                    method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ host, port }),
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    const statusClass = result.status === 'open' ? 'status-online' : 'status-offline';
+                    resultsDiv.innerHTML = `<span class="status"><span class="status-dot ${statusClass}"></span></span><strong>Status:</strong> ${result.status.toUpperCase()}<br>
+                                            <strong>Host:</strong> ${result.host}<br>
+                                            <strong>Port:</strong> ${result.port}`;
+                } else {
+                    resultsDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> Error: ${result.error}`;
+                }
+            } catch (error) {
+                console.error('Port scan error:', error);
+                resultsDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> A network error occurred.`;
+            }
+        });
+    }
+
+    // --- Traceroute Utility Logic ---
+    const tracerouteForm = document.getElementById('traceroute-form');
+    if (tracerouteForm) {
+        tracerouteForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const hostInput = document.getElementById('trace-host');
+            const resultsDiv = document.getElementById('traceroute-results');
+            const host = hostInput.value.trim();
+
+            if (!host) {
+                resultsDiv.textContent = 'Please enter a host to trace.';
+                return;
+            }
+            resultsDiv.textContent = `Running traceroute to ${host}... (This may take up to 30 seconds)`;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/traceroute`, {
+                    method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ host }),
+                });
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.textContent = result.output;
+                } else {
+                    resultsDiv.textContent = `Error: ${result.error || result.output}`;
+                }
+            } catch (error) {
+                console.error('Traceroute error:', error);
+                resultsDiv.textContent = 'A network error occurred.';
             }
         });
     }
@@ -83,14 +161,11 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutBtn.addEventListener('click', async (event) => {
             event.preventDefault();
             try {
-                // Inform the backend to clear the session
                 await fetch(`${BACKEND_URL}/api/logout`, {
                     method: 'POST',
-                    // This is crucial for sending the session cookie
                     credentials: 'include',
                 });
             } finally {
-                // Always redirect to login page after attempting to log out
                 window.location.href = 'login.html';
             }
         });

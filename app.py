@@ -1,6 +1,8 @@
-import os
 import platform
 import subprocess
+import socket
+import re # For parsing ping output
+
 from flask import Flask, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
@@ -35,6 +37,21 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.email}>'
 
+# --- Utility Functions ---
+def parse_ping_output(output):
+    """Parses ping output to find key metrics."""
+    # For Windows: Reply from 142.250.187.228: bytes=32 time=23ms TTL=116
+    match = re.search(r"Reply from (.*?):.*?time(?:<|_)?=?(\d+ms)", output)
+    if match:
+        return {"ip": match.group(1), "time": match.group(2)}
+    
+    # For Linux/macOS: 64 bytes from lhr48s01-in-f14.1e100.net (142.250.204.46): icmp_seq=1 ttl=116 time=22.3 ms
+    match = re.search(r"from (.*?):.*?time=([\d\.]+\s?ms)", output)
+    if match:
+        return {"ip": match.group(1), "time": match.group(2)}
+    
+    return {}
+
 # --- API Endpoints ---
 @app.route('/api/signup', methods=['POST'])
 def signup():
@@ -64,14 +81,13 @@ def login():
     if not user or not check_password_hash(user.password, data['password']):
         return jsonify({"message": "Invalid email or password"}), 401
     
-    # This is where the session is created for the user
     session['user_id'] = user.id
     return jsonify({"message": "Login successful!", "user_id": user.id}), 200
 
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
-    session.clear() # This clears the session, logging the user out
+    session.clear()
     return jsonify({"message": "Logged out successfully"}), 200
 
 
@@ -86,14 +102,11 @@ def check_session():
     return jsonify({"logged_in": False}), 401
 
 
-# This is an example of a protected API endpoint
 @app.route('/api/dashboard_data', methods=['GET'])
 def get_dashboard_data():
     if 'user_id' not in session:
         return jsonify({"message": "Unauthorized"}), 401
     
-    # You can now fetch data specific to the logged-in user
-    # For now, just return a simple message
     return jsonify({"message": f"Welcome to your dashboard, user #{session['user_id']}!"})
 
 
@@ -112,10 +125,80 @@ def ping_host():
 
     try:
         result = subprocess.run(command, capture_output=True, text=True, timeout=5)
-        status = 'online' if result.returncode == 0 else 'offline'
-        return jsonify({'host': host, 'status': status, 'output': result.stdout or result.stderr}), 200
+        
+        if result.returncode == 0:
+            status = 'online'
+            parsed_data = parse_ping_output(result.stdout)
+            return jsonify({
+                'host': host, 
+                'status': status, 
+                'ip': parsed_data.get('ip'),
+                'time': parsed_data.get('time'),
+                'raw_output': result.stdout
+            }), 200
+        else:
+            return jsonify({'host': host, 'status': 'offline', 'raw_output': result.stderr}), 200
+            
     except subprocess.TimeoutExpired:
         return jsonify({'host': host, 'status': 'offline', 'error': 'Ping timed out'}), 504
+    except Exception as e:
+        return jsonify({'host': host, 'status': 'error', 'error': str(e)}), 500
+
+
+@app.route('/api/port_scan', methods=['POST'])
+def port_scan():
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    if not data or 'host' not in data or 'port' not in data:
+        return jsonify({"error": "Host and port are required"}), 400
+
+    host = data['host']
+    try:
+        port = int(data['port'])
+        if not 1 <= port <= 65535:
+            raise ValueError
+    except (ValueError, TypeError):
+        return jsonify({"error": "Port must be a valid integer between 1 and 65535"}), 400
+
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result_code = sock.connect_ex((host, port))
+        sock.close()
+        
+        status = 'open' if result_code == 0 else 'closed'
+        return jsonify({'host': host, 'port': port, 'status': status}), 200
+
+    except socket.gaierror:
+        return jsonify({'host': host, 'port': port, 'status': 'error', 'error': 'Hostname could not be resolved'}), 400
+    except Exception as e:
+        return jsonify({'host': host, 'port': port, 'status': 'error', 'error': str(e)}), 500
+
+
+@app.route('/api/traceroute', methods=['POST'])
+def traceroute_host():
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    if not data or 'host' not in data:
+        return jsonify({"error": "Host to trace is required"}), 400
+
+    host = data['host']
+    command = ['tracert' if platform.system().lower() == 'windows' else 'traceroute', host]
+
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+        
+        if result.returncode == 0:
+            return jsonify({'host': host, 'status': 'complete', 'output': result.stdout}), 200
+        else:
+            return jsonify({'host': host, 'status': 'failed', 'output': result.stderr}), 200
+            
+    except subprocess.TimeoutExpired:
+        return jsonify({'host': host, 'status': 'failed', 'error': 'Traceroute timed out'}), 504
     except Exception as e:
         return jsonify({'host': host, 'status': 'error', 'error': str(e)}), 500
 
