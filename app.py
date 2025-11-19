@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -8,7 +8,10 @@ import subprocess
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True) # supports_credentials=True is needed for sessions
+
+# In a real app, this should be a long, random string loaded from an environment variable
+app.secret_key = 'dev-secret-key'
 
 # Database Configuration
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -74,6 +77,9 @@ def login():
     # Check if the user exists and the password is correct
     if not user or not check_password_hash(user.password, password):
         return jsonify({"message": "Invalid email or password"}), 401 # 401 Unauthorized
+    
+    # Store user_id in the session to remember the user
+    session['user_id'] = user.id
 
     return jsonify({"message": "Login successful!"}), 200
 
@@ -106,6 +112,17 @@ def ping_host():
         return jsonify({'host': host, 'status': 'offline', 'error': 'Ping timed out'}), 504
     except Exception as e:
         return jsonify({'host': host, 'status': 'error', 'error': str(e)}), 500
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({"message": "Logged out successfully"}), 200
+
+@app.route('/api/check_session', methods=['GET'])
+def check_session():
+    if 'user_id' in session:
+        return jsonify({"logged_in": True, "user_id": session['user_id']}), 200
+    return jsonify({"logged_in": False}), 401
 
 if __name__ == '__main__':
     app.run(debug=True)

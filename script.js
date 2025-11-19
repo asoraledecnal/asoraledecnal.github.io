@@ -101,12 +101,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Logout Logic ---
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', (event) => {
+        logoutBtn.addEventListener('click', async (event) => {
             event.preventDefault();
-            // In a real app, you'd send a request to the backend to invalidate the session/token
-            // For now, simply redirect to the login page
-            window.location.href = 'login.html';
+            try {
+                const response = await fetch('https://project-vantage-backend-ih0i.onrender.com/api/logout', {
+                    method: 'POST',
+                });
+                if (response.ok) {
+                    window.location.href = 'login.html'; // Redirect only after successful logout
+                } else {
+                    console.error('Logout failed on server');
+                    // Optionally display an error message to the user
+                }
+            } catch (error) {
+                console.error('Network error during logout:', error);
+                // Optionally display a network error message
+            }
         });
+    }
+
+    // --- Dashboard Protection ---
+    // Check if we are on the dashboard page
+    if (window.location.pathname.endsWith('dashboard.html')) {
+        (async () => {
+            try {
+                const response = await fetch('https://project-vantage-backend-ih0i.onrender.com/api/check_session', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    // If the response is not OK (e.g., 401 Unauthorized), redirect to login
+                    window.location.href = 'login.html';
+                }
+                // If response is OK, do nothing and let the user stay on the dashboard.
+            } catch (error) {
+                console.error('Session check failed:', error);
+                // If the request fails for any reason (e.g., network error), redirect to login
+                window.location.href = 'login.html';
+            }
+        })();
     }
 
 });
