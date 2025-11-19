@@ -1,117 +1,112 @@
-// Page Navigation
-document.querySelectorAll('[data-page]').forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const page = e.target.dataset.page;
-        showPage(page);
-    });
+document.addEventListener('DOMContentLoaded', () => {
+
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const messageDiv = document.getElementById('message');
+
+    // Function to handle form submission (for login/signup)
+    const handleFormSubmit = async (form, endpoint) => {
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent page reload
+
+            const email = form.querySelector('#email').value;
+            const password = form.querySelector('#password').value;
+
+            // Clear previous messages and hide the div
+            messageDiv.textContent = '';
+            messageDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`http://127.0.0.1:5000${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const result = await response.json();
+                messageDiv.style.display = 'block'; // Show the message div
+
+                            if (response.ok) {
+                                messageDiv.textContent = result.message;
+                                messageDiv.className = 'message success';
+                                if (endpoint === '/api/login') {
+                                    window.location.href = 'dashboard.html'; // Redirect to a dashboard page
+                                }
+                                form.reset(); // Clear the form fields after successful submission
+                            } else {                    messageDiv.textContent = result.message;
+                    messageDiv.className = 'message error';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                messageDiv.style.display = 'block';
+                messageDiv.textContent = 'An unexpected network error occurred.';
+                messageDiv.className = 'message error';
+            }
+        });
+    };
+
+    // Attach the event listener to the correct form based on the page
+    if (loginForm) {
+        handleFormSubmit(loginForm, '/api/login');
+    }
+
+    if (signupForm) {
+        handleFormSubmit(signupForm, '/api/signup');
+    }
+
+    // --- Ping Utility Logic ---
+    const pingForm = document.getElementById('ping-form');
+    const pingHostInput = document.getElementById('ping-host');
+    const pingResultsDiv = document.getElementById('ping-results');
+
+    if (pingForm) {
+        pingForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent page reload
+
+            const host = pingHostInput.value.trim();
+            if (!host) {
+                pingResultsDiv.textContent = 'Please enter a host to ping.';
+                return;
+            }
+
+            pingResultsDiv.textContent = 'Pinging...';
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/ping', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ host }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    pingResultsDiv.textContent = `Host: ${result.host}\nStatus: ${result.status}\nOutput:\n${result.output}`;
+                    // Add styling based on status if needed
+                    // if (result.status === 'online') { ... }
+                } else {
+                    pingResultsDiv.textContent = `Error: ${result.error || 'Unknown error'}`;
+                }
+            } catch (error) {
+                console.error('Ping request failed:', error);
+                pingResultsDiv.textContent = 'An error occurred while trying to ping.';
+            }
+        });
+    }
+
+    // --- Logout Logic ---
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            // In a real app, you'd send a request to the backend to invalidate the session/token
+            // For now, simply redirect to the login page
+            window.location.href = 'login.html';
+        });
+    }
+
 });
-
-function showPage(pageId) {
-    // Hide all pages
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-
-    // Show selected page
-    const selectedPage = document.getElementById(pageId);
-    if (selectedPage) {
-        selectedPage.classList.add('active');
-        window.scrollTo(0, 0);
-    }
-}
-
-// Modal Functions
-function openLoginModal() {
-    document.getElementById('loginModal').style.display = 'block';
-    document.getElementById('registerModal').style.display = 'none';
-}
-
-function closeLoginModal() {
-    document.getElementById('loginModal').style.display = 'none';
-}
-
-function openRegisterModal() {
-    document.getElementById('registerModal').style.display = 'block';
-    document.getElementById('loginModal').style.display = 'none';
-}
-
-function closeRegisterModal() {
-    document.getElementById('registerModal').style.display = 'none';
-}
-
-function switchToRegister() {
-    closeLoginModal();
-    openRegisterModal();
-}
-
-function switchToLogin() {
-    closeRegisterModal();
-    openLoginModal();
-}
-
-// Close modals when clicking outside
-window.addEventListener('click', (e) => {
-    const loginModal = document.getElementById('loginModal');
-    const registerModal = document.getElementById('registerModal');
-
-    if (e.target === loginModal) {
-        closeLoginModal();
-    }
-    if (e.target === registerModal) {
-        closeRegisterModal();
-    }
-});
-
-// Close modals with Escape key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeLoginModal();
-        closeRegisterModal();
-    }
-});
-
-// Form Handlers
-function handleLogin(event) {
-    event.preventDefault();
-    const form = event.target;
-    const email = form.querySelector('input[type="email"]').value;
-    const password = form.querySelector('input[type="password"]').value;
-
-    console.log('Login attempt:', { email, password });
-    alert('Login successful! (Demo mode)');
-    closeLoginModal();
-    form.reset();
-}
-
-function handleRegister(event) {
-    event.preventDefault();
-    const form = event.target;
-    const name = form.querySelector('input[type="text"]').value;
-    const email = form.querySelector('input[type="email"]').value;
-    const password = form.querySelectorAll('input[type="password"]')[0].value;
-    const confirmPassword = form.querySelectorAll('input[type="password"]')[1].value;
-
-    if (password !== confirmPassword) {
-        alert('Passwords do not match!');
-        return;
-    }
-
-    console.log('Registration attempt:', { name, email, password });
-    alert('Account created successfully! (Demo mode)');
-    closeRegisterModal();
-    form.reset();
-}
-
-function handleContactSubmit(event) {
-    event.preventDefault();
-    const form = event.target;
-    const name = form.querySelector('input[type="text"]').value;
-    const email = form.querySelector('input[type="email"]').value;
-    const subject = form.querySelectorAll('input[type="text"]')[1].value;
-    const message = form.querySelector('textarea').value;
-
-    console.log('Contact form submitted:', { name, email, subject, message });
-    alert('Thank you for your message! We will get back to you soon.');
-    form.reset();
-}

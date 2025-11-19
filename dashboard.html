@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Vantage</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="Vantage Logo.png" alt="Vantage Logo">
+            </div>
+            <div class="right-container">
+                <ul class="nav-links">
+                    <li><a href="#" id="logout-btn">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard-container">
+        <h2>Welcome to Your Dashboard!</h2>
+        <p>This is where your network monitoring data will be displayed.</p>
+        
+        <div class="ping-widget">
+            <h3>Ping Utility</h3>
+            <form id="ping-form">
+                <input type="text" id="ping-host" placeholder="Enter host or IP (e.g., google.com)">
+                <button type="submit">Ping</button>
+            </form>
+            <pre id="ping-results"></pre>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Vantage Monitoring</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
