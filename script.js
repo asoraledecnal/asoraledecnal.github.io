@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messageDiv.style.display = 'none';
 
             try {
-                const response = await fetch(`http://127.0.0.1:5000${endpoint}`, {
+                const response = await fetch(`https://project-vantage-backend-ih0i.onrender.com${endpoint}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pingResultsDiv.textContent = 'Pinging...';
 
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/ping', {
+                const response = await fetch('https://project-vantage-backend-ih0i.onrender.com/api/ping', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
