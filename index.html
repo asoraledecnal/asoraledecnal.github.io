@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@300;400;500;600;700&family=Jaro:opsz@6..72&display=swap" rel="stylesheet">
+    <title>Vantage</title>
+</head>
+
+<body>
+    <header>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="Vantage Logo.png" alt="Vantage Logo">
+        </div>
+
+        <div class="right-container">
+            <!-- Hamburger for mobile -->
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
+            
+        </div>
+    </nav>
+</header>
+
+
+    <section class="hero">
+        <img src="Welcome to Vantage.png" alt="Welcome to Vantage" class="hero-image">
+    </section>
+
+    
+    <div class="get-started">
+    <a href="login.html" class="get-started-btn">Sign in</a>
+    </div>
+
+
+    <div class="useful-cardset">
+    <div class="useful-card">
+        <img src="https://drdavidhamilton.com/wp-content/uploads/2023/07/Interconnected_iStock-1356381571.jpg" alt="Networking Concepts">
+        <h3>Basic Networking Concepts</h3>
+        <p>Learn basic networking concepts.</p>
+    </div>
+    <div class="useful-card">
+        <img src="https://img.freepik.com/premium-photo/wireless-router-black-background_693425-3820.jpg" alt="Networking Devices">
+        <h3>Networking Devices</h3>
+        <p>Explore different types of network devices.</p>
+    </div>
+    <div class="useful-card">
+        <img src="https://img.freepik.com/premium-photo/black-background-with-white-image-network-connected-connected-connected-connected-wires_1071931-36176.jpg" alt="Network Connections">
+        <h3>Everything is Connected</h3>
+        <p>View how the networks are connected to each other.</p>
+    </div>
+     <div class="useful-card">
+        <img src="https://img.freepik.com/premium-photo/black-background-with-white-image-network-connected-connected-connected-connected-wires_1071931-36176.jpg" alt="Network Connections">
+        <h3>Everything is Connected</h3>
+        <p>View how the networks are connected to each other.</p>
+    </div>
+     <div class="useful-card">
+        <img src="https://img.freepik.com/premium-photo/black-background-with-white-image-network-connected-connected-connected-connected-wires_1071931-36176.jpg" alt="Network Connections">
+        <h3>Everything is Connected</h3>
+        <p>View how the networks are connected to each other.</p>
+    </div>
+</div>
+
+
+<!-- for the menubar script -->
+<script>
+const mobileMenu = document.getElementById('mobile-menu');
+const navLinks = document.querySelector('.nav-links');
+
+mobileMenu.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+});
+</script>
+
+</body>
+</html>
