@@ -7,8 +7,9 @@
 }
 
 body {
-    background: radial-gradient(circle at -25% -50%, rgba(60, 60, 60, 0.3), #1B1C21 70%);
-    color: rgb(255, 255, 255);
+    background: radial-gradient(circle at -20% -100%, rgba(60, 60, 60, 0.3), #1B1C21 70%);
+    color: #FFFFFF;
+    animation:bg-pan-left 5s infinite alternate-reverse;
 }
 
 /* Navigation */
@@ -23,9 +24,11 @@ header {
 }
 
 .logo {
-    width:400px;
-    height:auto;
-    animation:fade-in-bottom .70s cubic-bezier(.39,.575,.565,1.000) both
+    width: 400px;
+    height: auto;
+    opacity: 0;
+    transform: translateY(50px);
+    animation: fade-in-bottom 0.7s cubic-bezier(.39,.575,.565,1.000) forwards 0.2s;
 }
 
 .nav-links {
@@ -33,8 +36,9 @@ header {
     list-style: none;
     gap: 60px;
     margin-right: 20px;
-    animation:fade-in-bottom .70s cubic-bezier(.39,.575,.565,1.000) both
-
+    opacity: 0;
+    transform: translateY(50px);
+    animation: fade-in-bottom 0.7s cubic-bezier(.39,.575,.565,1.000) forwards 0.4s;
 }
 
 .nav-links a {
@@ -75,23 +79,17 @@ header {
         padding: 15px;
         gap: 15px;
         border-radius: 10px;
-        display: none; /* hidden by default */
-    }
-
-    .nav-links li {
-        margin: 0;
+        display: none;
     }
 
     .nav-links.active {
-        display: flex; /* show when toggled */
+        display: flex;
     }
 
-    /* Show hamburger */
     .menu-toggle {
         display: flex;
     }
 
-    /* Hide nav-links horizontally */
     .navbar .right-container {
         display: flex;
         align-items: center;
@@ -99,27 +97,64 @@ header {
     }
 }
 
+/* Hero Section */
+.hero {
+    text-align: center;
+    margin-top: 10px;
+    opacity: 0;
+    transform: translateY(50px);
+    animation: fade-in-bottom 0.8s cubic-bezier(.39,.575,.565,1.000) forwards 0.6s;
+    transition: transform 0.3s ease;
+}
+
+.hero-image {
+    width: 500px;
+    height: auto;
+    /* Remove static transform */
+    /* transform: translateY(-150px); */
+    
+    /* Add a fade-in animation with offset */
+    opacity: 0;
+    transform: translateY(-150px); /* start slightly above */
+    animation: fade-in-bottom-hero 0.8s cubic-bezier(.39,.575,.565,1.000) forwards 0.6s,
+    vibrate-1 2s ease-in 1s infinite both;
+}
+
+/* Custom fade-in for hero image with offset */
+@keyframes fade-in-bottom-hero {
+    0% {
+        transform: translateY(-150px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0); /* final position */
+        opacity: 1;
+    }
+}
+
+
 /* Get Started Button */
 .get-started {
     text-align: center;
-    margin-top: -130px; /* space below hero */
+    margin-top: 10px;
     margin-bottom: 50px;
 }
 
 .get-started-btn {
     position: relative;
     display: inline-block;
-    padding: 5px 30px;
-    font-size: 16px;
+    padding: 6px 50px;
+    font-size: 14px;
     font-weight: 100;
     text-decoration: none;
     color: #FFFFFF;
     border-radius: 10px;
     cursor: pointer;
-    background-color: rgba(139, 139, 139, 0); /* transparent fill */
-    border: 2px solid transparent;
-    border-color: #FFFFFF;
-    border-width: 1.5px;
+    background-color: rgba(139, 139, 139, 0);
+    border: 1px solid #FFFFFF;
+    opacity: 0;
+    transform: translateY(50px);
+    animation: fade-in-bottom 0.7s cubic-bezier(.39,.575,.565,1.000) forwards 0.8s;
     transition: all 0.3s ease;
 }
 
@@ -128,34 +163,16 @@ header {
     box-shadow: 0 8px 20px rgba(255,255,255,0.2);
 }
 
-/* Hero Section */
-.hero {
-    text-align: center;
-    margin-top: 200px;
-
-    animation:
-        fade-in-bottom .8s cubic-bezier(.39,.575,.565,1.000) both,
-        vibrate-1 4s linear infinite .8s; /* <-- delay added */
-
-    transition: transform .3s ease;
-}
-
-
-.hero-image {
-    width: 450px;
-    height: auto;
-    transform: translateY(-150px); 
-}
-
 /* Useful Card Set */
 .useful-cardset {
     display: flex;
     justify-content: center;
     gap: 30px;
-    margin: 10px auto;
+    margin: auto;
+    margin-top:-20px;
     flex-wrap: wrap;
     max-width: 1200px;
-    padding-bottom: 80px; /* add some bottom padding for scroll */
+    padding-bottom: 80px;
 }
 
 .useful-card {
@@ -164,21 +181,30 @@ header {
     width: 300px;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* ensures image fits nicely */
+    overflow: hidden;
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: default;
+    opacity: 0;
+    transform: translateY(50px);
+    animation: fade-in-bottom 0.7s cubic-bezier(.39,.575,.565,1.000) forwards;
 }
+
+/* Stagger cards */
+.useful-card:nth-child(1) { animation-delay: 1.0s; }
+.useful-card:nth-child(2) { animation-delay: 1.2s; }
+.useful-card:nth-child(3) { animation-delay: 1.4s; }
+.useful-card:nth-child(4) { animation-delay: 1.6s; }
+.useful-card:nth-child(5) { animation-delay: 1.8s; }
 
 /* Card Image fills top portion of card */
 .useful-card img {
     width: 100%;
-    height: 180px; /* fixed height */
-    object-fit: cover; /* ensures image covers area without distortion */
+    height: 180px;
+    object-fit: cover;
     display: block;
 }
 
-/* Text content below image */
 .useful-card h3 {
     font-size: 22px;
     margin: 15px 10px 10px 10px;
@@ -192,21 +218,24 @@ header {
     margin: 0 10px 20px 10px;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Animations */
-@keyframes fade-in-bottom{0%{transform:translateY(50px);opacity:0}100%{transform:translateY(0);opacity:1}}
-@keyframes vibrate-1{0%{transform:translate(0)}20%{transform:translate(-2px,2px)}40%{transform:translate(-2px,-2px)}60%{transform:translate(2px,2px)}80%{transform:translate(2px,-2px)}100%{transform:translate(0)}}
+/* Horizontal Slideshow Animation */
+@keyframes slide-cards {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(0); }
+    25% { transform: translateX(-330px); }
+    45% { transform: translateX(-330px); }
+    50% { transform: translateX(-660px); }
+    70% { transform: translateX(-660px); }
+    75% { transform: translateX(-990px); }
+    95% { transform: translateX(-990px); }
+    100% { transform: translateX(0); }
+}
 
+@keyframes fade-in-bottom {
+    0% { transform: translateY(50px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes vibrate-1{0%{transform:translate(0)}20%{transform:translate(-2px,2px)}40%{transform:translate(-2px,-2px)}60%{transform:translate(2px,2px)}80%{transform:translate(2px,-2px)}100%{transform:translate(0)}}
+@keyframes bg-pan-left{0%{background-position:100% 50%}100%{background-position:0 50%}}
