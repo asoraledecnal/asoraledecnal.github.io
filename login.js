@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault()
 
-      const email = loginForm.querySelector("#email").value
+      const identifier = loginForm.querySelector("#email").value
       const password = loginForm.querySelector("#password").value
 
       if (messageDiv) {
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ identifier, password }),
         })
 
         const result = await response.json()

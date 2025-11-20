@@ -93,23 +93,25 @@
             </article>
         </section>
 
+        <div class="panel-header diagnostics-main-header">
+            <div>
+                <p class="panel-label">Toolset</p>
+                <h2>Network Diagnostics</h2>
+            </div>
+            <p class="panel-copy">Jump between ping, port intelligence, and traceroute without leaving the story view.</p>
+        </div>
+
         <section class="diagnostics-layout">
-            <div class="diagnostics-panel">
-                <div class="panel-header">
-                    <div>
-                        <p class="panel-label">Toolset</p>
-                        <h2>Network Diagnostics</h2>
-                    </div>
-                    <p class="panel-copy">Jump between ping, port intelligence, and traceroute without leaving the story view.</p>
-                </div>
+            <nav class="sidebar">
+                <ul>
+                    <li><a href="#ping-tab" class="sidebar-link active" data-tool="ping-tab">📶 Ping Utility</a></li>
+                    <li><a href="#port-scan-tab" class="sidebar-link" data-tool="port-scan-tab">🔌 Port Scanner</a></li>
+                    <li><a href="#traceroute-tab" class="sidebar-link" data-tool="traceroute-tab">🗺️ Traceroute Utility</a></li>
+                </ul>
+            </nav>
 
-                <div class="tabs">
-                    <button class="tab-link active" data-tab="ping-tab">Ping</button>
-                    <button class="tab-link" data-tab="port-scan-tab">Port Scan</button>
-                    <button class="tab-link" data-tab="traceroute-tab">Traceroute</button>
-                </div>
-
-                <div id="ping-tab" class="tab-content active">
+            <div class="tool-content">
+                <div id="ping-tab" class="tool-section active">
                     <div class="widget">
                         <h3><span class="icon">📶</span>Ping Utility</h3>
                         <form id="ping-form">
@@ -124,7 +126,7 @@
                     </div>
                 </div>
 
-                <div id="port-scan-tab" class="tab-content">
+                <div id="port-scan-tab" class="tool-section">
                     <div class="widget">
                         <h3><span class="icon">🔌</span>Port Scanner</h3>
                         <form id="port-scan-form">
@@ -136,7 +138,7 @@
                     </div>
                 </div>
 
-                <div id="traceroute-tab" class="tab-content">
+                <div id="traceroute-tab" class="tool-section">
                     <div class="widget">
                         <h3><span class="icon">🗺️</span>Traceroute Utility</h3>
                         <form id="traceroute-form">

@@ -16,7 +16,140 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  checkAuth()
+  // --- Configuration ---
+  const BACKEND_URL = "https://project-vantage-backend-ih0i.onrender.com"
+
+  // Function to fetch and display Hero Metrics
+  const fetchAndDisplayHeroMetrics = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/dashboard/summary`, {
+        method: "GET",
+        credentials: "include",
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+
+      const heroMetrics = data.hero_metrics
+      if (heroMetrics) {
+        document.querySelector(".metric-card:nth-child(1) .metric-value").textContent = heroMetrics.median_latency || "N/A"
+        document.querySelector(".metric-card:nth-child(1) .metric-trend").textContent = heroMetrics.latency_trend || ""
+        document.querySelector(".metric-card:nth-child(2) .metric-value").textContent = heroMetrics.active_services || "N/A"
+        document.querySelector(".metric-card:nth-child(2) .metric-trend").textContent = `${heroMetrics.monitored_nodes} monitored edge nodes` || ""
+        document.querySelector(".metric-card:nth-child(3) .metric-value").textContent = heroMetrics.route_integrity || "N/A"
+        document.querySelector(".metric-card:nth-child(3) .metric-trend").textContent = heroMetrics.stability_trend || ""
+      }
+    } catch (error) {
+      console.error("Error fetching hero metrics:", error)
+    }
+  }
+
+  // Function to fetch and display Overview Grid
+  const fetchAndDisplayOverviewGrid = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/dashboard/summary`, {
+        method: "GET",
+        credentials: "include",
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+
+      const overviewGrid = data.overview_grid
+      if (overviewGrid) {
+        // Signal Quality
+        document.querySelector(".overview-card:nth-child(1) h3").textContent = overviewGrid.signal_quality.regions || ""
+        document.querySelector(".overview-card:nth-child(1) .pill").textContent = overviewGrid.signal_quality.status || ""
+        document.querySelector(".overview-card:nth-child(1) p:not(.pill)").textContent = overviewGrid.signal_quality.details || ""
+        // Incidents
+        document.querySelector(".overview-card:nth-child(2) h3").textContent = overviewGrid.incidents.count || ""
+        document.querySelector(".overview-card:nth-child(2) .pill").textContent = overviewGrid.incidents.status || ""
+        const incidentsUl = document.querySelector(".overview-card:nth-child(2) ul")
+        if (incidentsUl) {
+          incidentsUl.innerHTML = overviewGrid.incidents.list.map(item => `<li>${item}</li>`).join("")
+        }
+        // Automation
+        document.querySelector(".overview-card:nth-child(3) h3").textContent = overviewGrid.automation.resolves || ""
+        document.querySelector(".overview-card:nth-child(3) p:not(.pill)").textContent = overviewGrid.automation.details || ""
+        // Next Checks
+        document.querySelector(".overview-card:nth-child(4) h3").textContent = overviewGrid.next_checks.count || ""
+        document.querySelector(".overview-card:nth-child(4) p:not(.pill)").textContent = overviewGrid.next_checks.details || ""
+      }
+    } catch (error) {
+      console.error("Error fetching overview grid data:", error)
+    }
+  }
+
+  // Function to fetch and display Incident Timeline
+  const fetchAndDisplayIncidentTimeline = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/dashboard/timeline`, {
+        method: "GET",
+        credentials: "include",
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+
+      const timelineUl = document.querySelector(".intel-card:nth-child(1) .timeline")
+      if (timelineUl) {
+        timelineUl.innerHTML = data.timeline.map(item => `
+          <li>
+            <span>${item.time}</span>
+            <div>
+              <strong>${item.strong}</strong>
+              <p>${item.p}</p>
+            </div>
+          </li>`).join("")
+      }
+    } catch (error) {
+      console.error("Error fetching incident timeline:", error)
+    }
+  }
+
+  // Function to fetch and display Signal Watchlist
+  const fetchAndDisplaySignalWatchlist = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/dashboard/watchlist`, {
+        method: "GET",
+        credentials: "include",
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+
+      const watchlistUl = document.querySelector(".intel-card:nth-child(2) .watchlist")
+      if (watchlistUl) {
+        watchlistUl.innerHTML = data.watchlist.map(item => `
+          <li>
+            <div>
+              <p>${item.item}</p>
+              <span>${item.metric}</span>
+            </div>
+            <span class="pill ${item.status_pill}">${item.value}</span>
+          </li>`).join("")
+      }
+    } catch (error) {
+      console.error("Error fetching signal watchlist:", error)
+    }
+  }
+
+  // Main function to load all dashboard dynamic data
+  const loadDashboardData = () => {
+    fetchAndDisplayHeroMetrics()
+    fetchAndDisplayOverviewGrid()
+    fetchAndDisplayIncidentTimeline()
+    fetchAndDisplaySignalWatchlist()
+  }
+
+  checkAuth().then(() => {
+    // Only load dashboard data if authentication is successful
+    loadDashboardData()
+  })
 
   // Logout functionality
   const logoutBtn = document.getElementById("logout-btn")
@@ -35,22 +168,22 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   }
 
-  // Tab switching
-  const tabLinks = document.querySelectorAll(".tab-link")
-  const tabContents = document.querySelectorAll(".tab-content")
+  // Sidebar switching
+  const sidebarLinks = document.querySelectorAll(".sidebar-link")
+  const toolSections = document.querySelectorAll(".tool-section")
 
-  tabLinks.forEach((link) => {
+  sidebarLinks.forEach((link) => {
     link.addEventListener("click", (e) => {
       e.preventDefault()
 
-      // Remove active class from all tabs
-      tabLinks.forEach((tab) => tab.classList.remove("active"))
-      tabContents.forEach((content) => content.classList.remove("active"))
+      // Remove active class from all sidebar links and tool sections
+      sidebarLinks.forEach((sidebarLink) => sidebarLink.classList.remove("active"))
+      toolSections.forEach((section) => section.classList.remove("active"))
 
-      // Add active class to clicked tab
+      // Add active class to clicked sidebar link and corresponding tool section
       link.classList.add("active")
-      const tabId = link.getAttribute("data-tab")
-      document.getElementById(tabId).classList.add("active")
+      const toolId = link.getAttribute("data-tool")
+      document.getElementById(toolId).classList.add("active")
     })
   })
 
