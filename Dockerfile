@@ -5,11 +5,11 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copy and install Python dependencies from the backend directory
-COPY backend/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the backend project files
-COPY backend/ .
+# Copy the rest of the project files (assuming app.py is in root)
+COPY . .
 
 # Expose port 8000 for Render
 EXPOSE 8000

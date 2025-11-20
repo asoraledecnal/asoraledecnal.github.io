@@ -3,4 +3,4 @@ services:
     name: project-vantage-backend
     env: docker
     plan: free
-    dockerfilePath: ./backend/Dockerfile
+    dockerfilePath: ./Dockerfile
