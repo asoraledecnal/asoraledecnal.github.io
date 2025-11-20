@@ -3,5 +3,3 @@ Flask-Cors
 Flask-SQLAlchemy
 Werkzeug
 gunicorn
-pythonping
-scapy

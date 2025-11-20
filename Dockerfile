@@ -1,27 +1,21 @@
-# Use a slim Python base image
+# Base Python image
 FROM python:3.11-slim
 
-# Set the working directory in the container
+# Install system utilities
+RUN apt-get update && apt-get install -y iputils-ping traceroute && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies needed for ping and traceroute
-# iputils-ping provides the 'ping' command
-# traceroute provides the 'traceroute' command
-RUN apt-get update && \
-    apt-get install -y iputils-ping traceroute && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copy requirements.txt and install Python dependencies
+# Copy and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your application code
+# Copy the rest of the project
 COPY . .
 
-# Expose the port Gunicorn will listen on
+# Expose port 8000 for Render
 EXPOSE 8000
 
-# Command to run the application using Gunicorn
-# app:app refers to the 'app' Flask instance in 'app.py'
-# -b 0.0.0.0:8000 binds Gunicorn to all network interfaces on port 8000
-CMD ["gunicorn", "app:app", "-b", "0.0.0.0:8000"]
+# Start the app with gunicorn
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:8000"]
