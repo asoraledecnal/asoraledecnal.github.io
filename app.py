@@ -52,7 +52,7 @@ CORS(app, supports_credentials=True, origins=['https://asoraledecnal.github.io',
 
 # --- Database Configuration ---
 # Use PostgreSQL for production, SQLite for local development if DATABASE_URL is not set
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://user:password@localhost:5432/vantage_db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
