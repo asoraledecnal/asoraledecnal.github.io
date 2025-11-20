@@ -47,10 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
             details.style.display = 'none';
 
             if (!host) {
-                summaryDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> Please enter a host.`;
+                summaryDiv.innerHTML = `<div class="status"><span class="status-dot status-offline"></span>Please enter a host.</div>`;
                 return;
             }
-            summaryDiv.innerHTML = `<span class="status"><span class="status-dot"></span></span> Pinging ${host}...`;
+            summaryDiv.innerHTML = `<div class="status"><span class="status-dot"></span>Pinging ${host}...</div>`;
 
             try {
                 const response = await fetch(`${BACKEND_URL}/api/ping`, {
@@ -61,21 +61,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (response.ok) {
                     if (result.status === 'online') {
-                        summaryDiv.innerHTML = `<span class="status"><span class="status-dot status-online"></span></span><strong>Status:</strong> Online<br>
-                                                <strong>Host:</strong> ${result.host}<br>
-                                                <strong>Response Time:</strong> ${result.time || 'N/A'}`;
+                        summaryDiv.innerHTML = `<div class="status"><span class="status-dot status-online"></span><strong>Status:</strong> Online</div>
+                                                <div><strong>Host:</strong> ${result.host}</div>
+                                                <div><strong>IP Address:</strong> ${result.ip || 'N/A'}</div>
+                                                <div><strong>Response Time:</strong> ${result.time || 'N/A'}</div>`;
                     } else {
-                        summaryDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span><strong>Status:</strong> Offline<br>
-                                                <strong>Host:</strong> ${result.host}`;
+                        summaryDiv.innerHTML = `<div class="status"><span class="status-dot status-offline"></span><strong>Status:</strong> Offline</div>
+                                                <div><strong>Host:</strong> ${result.host}</div>`;
                     }
                     rawResultsPre.textContent = result.raw_output;
                     details.style.display = 'block';
                 } else {
-                    summaryDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> Error: ${result.message || result.error}`;
+                    summaryDiv.innerHTML = `<div class="status"><span class="status-dot status-offline"></span></span> Error: ${result.message || result.error}</div>`;
                 }
             } catch (error) {
                 console.error('Ping error:', error);
-                summaryDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> A network error occurred.`;
+                summaryDiv.innerHTML = `<div class="status"><span class="status-dot status-offline"></span></span>A network error occurred.</div>`;
             }
         });
     }
@@ -94,10 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
             resultsDiv.style.display = 'block';
 
             if (!host || !port) {
-                resultsDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> Please enter both a host and a port.`;
+                resultsDiv.innerHTML = `<div class="status"><span class="status-dot status-offline"></span>Please enter both a host and a port.</div>`;
                 return;
             }
-            resultsDiv.innerHTML = `<span class="status"><span class="status-dot"></span></span> Scanning port ${port} on ${host}...`;
+            resultsDiv.innerHTML = `<div class="status"><span class="status-dot"></span>Scanning port ${port} on ${host}...</div>`;
 
             try {
                 const response = await fetch(`${BACKEND_URL}/api/port_scan`, {
@@ -108,15 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.ok) {
                     const statusClass = result.status === 'open' ? 'status-online' : 'status-offline';
-                    resultsDiv.innerHTML = `<span class="status"><span class="status-dot ${statusClass}"></span></span><strong>Status:</strong> ${result.status.toUpperCase()}<br>
-                                            <strong>Host:</strong> ${result.host}<br>
-                                            <strong>Port:</strong> ${result.port}`;
+                    resultsDiv.innerHTML = `<div class="status"><span class="status-dot ${statusClass}"></span><strong>Status:</strong> ${result.status.toUpperCase()}</div>
+                                            <div><strong>Host:</strong> ${result.host}</div>
+                                            <div><strong>Port:</strong> ${result.port}</div>`;
                 } else {
-                    resultsDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> Error: ${result.error}`;
+                    resultsDiv.innerHTML = `<div class="status"><span class="status-dot status-offline"></span></span>Error: ${result.error}</div>`;
                 }
             } catch (error) {
                 console.error('Port scan error:', error);
-                resultsDiv.innerHTML = `<span class="status"><span class="status-dot status-offline"></span></span> A network error occurred.`;
+                resultsDiv.innerHTML = `<div class="status"><span class="status-dot status-offline"></span></span>A network error occurred.</div>`;
             }
         });
     }

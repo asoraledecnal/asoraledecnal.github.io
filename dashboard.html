@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Vantage</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 <body id="dashboard-page">
     <header>
         <nav class="navbar">
             <div class="logo">
-                <img src="Vantage Logo.png" alt="Vantage Logo">
+                <a href="index.html"><img src="Vantage Logo.png" alt="Vantage Logo"></a>
             </div>
             <div class="right-container">
                 <ul class="nav-links">
@@ -36,7 +37,7 @@
                     <input type="text" id="ping-host" placeholder="Enter host or IP (e.g., google.com)">
                     <button type="submit">Ping</button>
                 </form>
-                <div id="ping-results-summary" class="results-summary"></div>
+                <div id="ping-results-summary" class="results-summary" style="display: none;"></div>
                 <details id="ping-details" class="log-details" style="display: none;">
                     <summary>Show Full Log</summary>
                     <pre id="ping-results-raw" class="results-area"></pre>
@@ -52,7 +53,7 @@
                     <input type="number" id="scan-port" placeholder="Port (e.g., 80, 443)">
                     <button type="submit">Scan</button>
                 </form>
-                <div id="port-scan-results" class="results-summary"></div>
+                <div id="port-scan-results" class="results-summary" style="display: none;"></div>
             </div>
         </div>
 
@@ -68,10 +69,6 @@
         </div>
 
     </main>
-
-    <footer>
-        <p>&copy; 2025 Vantage Monitoring</p>
-    </footer>
 
     <script src="dashboard.js"></script>
 </body>

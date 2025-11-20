@@ -1,0 +1,175 @@
+/* --- Dashboard Header --- */
+header {
+    padding: 20px 40px;
+    background: rgba(17, 24, 39, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* --- Main Dashboard Container --- */
+.dashboard-container {
+    padding: 40px;
+    max-width: 1600px;
+    margin: 40px auto;
+}
+
+.dashboard-container h2 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #F9FAFB;
+}
+
+/* --- Tabs --- */
+.tabs {
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 40px;
+}
+
+.tab-link {
+    padding: 15px 30px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #9CA3AF;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    margin-bottom: -1px;
+}
+
+.tab-link:hover {
+    color: #E5E7EB;
+}
+
+.tab-link.active {
+    color: #3B82F6;
+    border-bottom-color: #3B82F6;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fade-in 0.5s ease-in-out; }
+
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Widgets --- */
+.widget {
+    background: rgba(31, 41, 55, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 30px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin-bottom: 40px;
+}
+
+.widget h3 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 500;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #F9FAFB;
+}
+
+.widget form {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.widget form input {
+    flex: 1 1 300px;
+    padding: 14px 18px;
+    border: 1px solid #4B5563;
+    border-radius: 8px;
+    background-color: #1F2937;
+    color: #F3F4F6;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.widget form input:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.widget form button {
+    padding: 14px 30px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+#ping-form button { background-color: #3B82F6; }
+#ping-form button:hover { background-color: #2563EB; }
+#port-scan-form button { background-color: #10B981; }
+#port-scan-form button:hover { background-color: #059669; }
+#traceroute-form button { background-color: #6366F1; }
+#traceroute-form button:hover { background-color: #4F46E5; }
+
+/* --- Results Display --- */
+.results-summary {
+    background-color: #111827;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #9CA3AF;
+    border: 1px solid #374151;
+    margin-bottom: 15px;
+}
+
+.results-summary .status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px, 0 0 12px;
+}
+.status-online { color: #34D399; background-color: #34D399; }
+.status-offline { color: #F87171; background-color: #F87171; }
+.status-open { color: #34D399; background-color: #34D399; }
+.status-closed { color: #F87171; background-color: #F87171; }
+
+.log-details summary {
+    cursor: pointer;
+    color: #60A5FA;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 10px;
+}
+
+.results-area {
+    background-color: #000;
+    color: #34D399;
+    font-family: 'Fira Code', monospace;
+    padding: 20px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    border: 1px solid #374151;
+}
