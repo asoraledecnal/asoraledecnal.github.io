@@ -211,7 +211,7 @@ def ping_host():
         # Use pythonping
         result = ping(host, count=4, timeout=2) # 4 packets, 2 second timeout for more realistic stats
         
-        raw_output_text = "\n".join(
+        raw_output_text = """\n".join(
             r.success_message if r.success else r.error_message
             for r in result.all_responses
         )

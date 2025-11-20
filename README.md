@@ -49,10 +49,7 @@ Project Vantage is a web application designed to provide a user-friendly dashboa
     cd project-vantage
     ```
 
-2.  **Set Up the Backend:**
-    Navigate to the backend directory to set up the environment and dependencies.
-    ```bash
-    cd backend
+2.  **Set Up Dependencies:
     ```
 
 3.  **Create and Activate a Virtual Environment:**
@@ -73,7 +70,7 @@ Project Vantage is a web application designed to provide a user-friendly dashboa
     ```
 
 5.  **Initialize the Database:**
-    From the `backend` directory:
+    From the project's root directory:
     ```bash
     # Set the Flask app environment variable
     export FLASK_APP=app.py # (Use 'set FLASK_APP=app.py' in Windows CMD)
@@ -87,7 +84,7 @@ Project Vantage is a web application designed to provide a user-friendly dashboa
     db.create_all()
     exit()
     ```
-    This will create a `database.db` file inside the `backend` directory.
+    This will create a `database.db` file in the project's root directory.
 
 6.  **Run the Backend Development Server:**
     ```bash
@@ -95,12 +92,8 @@ Project Vantage is a web application designed to provide a user-friendly dashboa
     ```
     The backend will be running on `http://127.0.0.1:5000`. Keep this terminal open.
 
-7.  **Launch the Frontend:**
-    In a separate terminal, navigate to the `frontend` directory and open the `index.html` file in a web browser.
-    ```bash
-    cd ../frontend
-    # open index.html
-    ```
+6.  **Launch the Frontend:**
+    Open the `index.html` file in a web browser.
 
 ---
 
@@ -109,9 +102,9 @@ Project Vantage is a web application designed to provide a user-friendly dashboa
 ### Backend Deployment (e.g., on Render)
 1.  Ensure all code is pushed to a GitHub repository.
 2.  Create a new "Web Service" on Render and connect it to the repository.
-3.  Render will automatically detect the `render.yaml` file and configure the service. It uses the `backend/Dockerfile` to build and deploy the application.
+    Render will automatically detect the `render.yaml` file and configure the service. It uses the `Dockerfile` in the root directory to build and deploy the application.
 
 ### Frontend Deployment (e.g., on GitHub Pages or Netlify)
-1.  The static files in the `frontend` directory can be served by any static hosting provider.
-2.  Point the hosting service to the `frontend` directory as the root/publish directory.
-3.  **Crucially**, before deploying, ensure the `BACKEND_URL` constant in `frontend/dashboard.js` and other JS files is updated from the local `http://127.0.0.1:5000` to the public backend URL provided by Render.
+1.  The static HTML, CSS, and JavaScript files in the project's root directory can be served by any static hosting provider.
+2.  Point the hosting service to the project's root directory as the root/publish directory.
+3.  **Crucially**, before deploying, ensure the `BACKEND_URL` constant in `dashboard.js` (and any other relevant JS files) is updated from the local `http://127.0.0.1:5000` to the public backend URL provided by Render.
