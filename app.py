@@ -2,12 +2,12 @@ import os
 import platform
 import subprocess
 import socket
-import re # For parsing ping output
-
+import re
 from flask import Flask, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from pythonping import ping # Import pythonping
 
 # --- App Initialization and Configuration ---
 app = Flask(__name__)
@@ -37,21 +37,6 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.email}>'
-
-# --- Utility Functions ---
-def parse_ping_output(output):
-    """Parses ping output to find key metrics."""
-    # For Windows: Reply from 142.250.187.228: bytes=32 time=23ms TTL=116
-    match = re.search(r"Reply from (.*?):.*?time(?:<|_)?=?(\d+ms)", output)
-    if match:
-        return {"ip": match.group(1), "time": match.group(2)}
-    
-    # For Linux/macOS: 64 bytes from lhr48s01-in-f14.1e100.net (142.250.204.46): icmp_seq=1 ttl=116 time=22.3 ms
-    match = re.search(r"from (.*?):.*?time=([\d\.]+\s?ms)", output)
-    if match:
-        return {"ip": match.group(1), "time": match.group(2)}
-    
-    return {}
 
 # --- API Endpoints ---
 @app.route('/api/signup', methods=['POST'])
@@ -88,7 +73,7 @@ def login():
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
-    session.clear()
+    session.clear() # This clears the session, logging the user out
     return jsonify({"message": "Logged out successfully"}), 200
 
 
@@ -103,6 +88,7 @@ def check_session():
     return jsonify({"logged_in": False}), 401
 
 
+# This is an example of a protected API endpoint
 @app.route('/api/dashboard_data', methods=['GET'])
 def get_dashboard_data():
     if 'user_id' not in session:
@@ -121,27 +107,33 @@ def ping_host():
         return jsonify({"error": "Host to ping is required"}), 400
 
     host = data['host']
-    param = '-n' if platform.system().lower() == 'windows' else '-c'
-    command = ['ping', param, '1', host]
-
+    
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=5)
+        # Use pythonping
+        result = ping(host, count=1, timeout=2) # 1 packet, 2 second timeout
         
-        if result.returncode == 0:
+        # pythonping.ping returns a list of Response objects
+        if result.success:
             status = 'online'
-            parsed_data = parse_ping_output(result.stdout)
-            return jsonify({
-                'host': host, 
-                'status': status, 
-                'ip': parsed_data.get('ip'),
-                'time': parsed_data.get('time'),
-                'raw_output': result.stdout
-            }), 200
+            # Extract relevant info from the first successful response
+            response_data = {
+                'ip_address': str(result.responses[0].destination_ip),
+                'rtt_avg_ms': result.rtt_avg_ms
+            }
+            output = result.all_responses[0].success_message
         else:
-            return jsonify({'host': host, 'status': 'offline', 'raw_output': result.stderr}), 200
-            
-    except subprocess.TimeoutExpired:
-        return jsonify({'host': host, 'status': 'offline', 'error': 'Ping timed out'}), 504
+            status = 'offline'
+            response_data = {}
+            output = result.all_responses[0].error_message
+        
+        return jsonify({
+            'host': host,
+            'status': status,
+            'ip': response_data.get('ip_address'),
+            'time': f"{response_data.get('rtt_avg_ms', 'N/A')}ms",
+            'raw_output': output
+        }), 200
+
     except Exception as e:
         return jsonify({'host': host, 'status': 'error', 'error': str(e)}), 500
 
@@ -164,16 +156,24 @@ def port_scan():
         return jsonify({"error": "Port must be a valid integer between 1 and 65535"}), 400
 
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
-        result_code = sock.connect_ex((host, port))
-        sock.close()
+        # Use subprocess to call 'nc' (netcat) for port scanning
+        # '-z' for zero-I/O mode (scan for listening daemons)
+        # '-w 1' for a 1-second timeout
+        # '-v' for verbose output
+        command = ['nc', '-z', '-w', '1', host, str(port)]
+        result = subprocess.run(command, capture_output=True, text=True, timeout=5)
         
-        status = 'open' if result_code == 0 else 'closed'
-        return jsonify({'host': host, 'port': port, 'status': status}), 200
+        if result.returncode == 0: # nc returns 0 if port is open
+            status = 'open'
+            output = result.stdout
+        else: # nc returns 1 if port is closed/filtered
+            status = 'closed'
+            output = result.stderr
 
-    except socket.gaierror:
-        return jsonify({'host': host, 'port': port, 'status': 'error', 'error': 'Hostname could not be resolved'}), 400
+        return jsonify({'host': host, 'port': port, 'status': status, 'raw_output': output}), 200
+
+    except subprocess.TimeoutExpired:
+        return jsonify({'host': host, 'port': port, 'status': 'closed', 'error': 'Port scan timed out'}), 504
     except Exception as e:
         return jsonify({'host': host, 'port': port, 'status': 'error', 'error': str(e)}), 500
 
