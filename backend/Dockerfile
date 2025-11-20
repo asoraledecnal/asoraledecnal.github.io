@@ -1,19 +1,15 @@
 # Base Python image
 FROM python:3.11-slim
 
-# Install system utilities
-RUN apt-get update && \
-    apt-get install -y iputils-ping traceroute netcat && \
-    
 # Set working directory
 WORKDIR /app
 
-# Copy and install Python dependencies
-COPY requirements.txt .
+# Copy and install Python dependencies from the backend directory
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the project
-COPY . .
+# Copy the rest of the backend project files
+COPY backend/ .
 
 # Expose port 8000 for Render
 EXPOSE 8000

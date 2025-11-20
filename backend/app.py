@@ -3,18 +3,44 @@ import platform
 import subprocess
 import socket
 import re
+import ipaddress
 from flask import Flask, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from pythonping import ping # Import pythonping
 
+# --- Helper function for input validation ---
+def is_valid_host(host):
+    """
+    Validates if the provided host is a valid hostname or IP address.
+    Prevents command injection by disallowing special characters.
+    """
+    if not host or not isinstance(host, str):
+        return False
+    
+    # Disallow characters that could be used for command injection
+    if any(char in host for char in ";|&`$()<>"):
+        return False
+        
+    # Check for valid IP address format
+    try:
+        ipaddress.ip_address(host)
+        return True # It's a valid IP address
+    except ValueError:
+        pass # Not an IP address, check if it's a hostname
+        
+    # Check for valid hostname format (simple regex)
+    # Allows for domain names like 'google.com' or 'sub.domain.co.uk'
+    hostname_regex = re.compile(r"^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$")
+    return hostname_regex.match(host) is not None
+
 # --- App Initialization and Configuration ---
 app = Flask(__name__)
 
 # This is the crucial configuration for secure, cross-domain sessions.
 # In a real production app, the secret key should come from an environment variable.
-app.secret_key = 'a_very_strong_and_long_random_secret_key_for_production'
+app.secret_key = os.environ.get('SECRET_KEY', 'a_very_strong_and_long_random_secret_key_for_production')
 app.config['SESSION_COOKIE_SECURE'] = True  # Ensures cookies are only sent over HTTPS
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Allows cross-domain cookie sending
 
@@ -103,10 +129,10 @@ def ping_host():
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json()
-    if not data or 'host' not in data:
-        return jsonify({"error": "Host to ping is required"}), 400
+    host = data.get('host')
 
-    host = data['host']
+    if not is_valid_host(host):
+        return jsonify({"error": "Invalid or malicious host provided"}), 400
     
     try:
         # Use pythonping
@@ -144,36 +170,34 @@ def port_scan():
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json()
-    if not data or 'host' not in data or 'port' not in data:
-        return jsonify({"error": "Host and port are required"}), 400
+    host = data.get('host')
+    port_str = data.get('port')
 
-    host = data['host']
+    if not is_valid_host(host):
+        return jsonify({"error": "Invalid or malicious host provided"}), 400
+
     try:
-        port = int(data['port'])
+        port = int(port_str)
         if not 1 <= port <= 65535:
             raise ValueError
     except (ValueError, TypeError):
         return jsonify({"error": "Port must be a valid integer between 1 and 65535"}), 400
 
     try:
-        # Use subprocess to call 'nc' (netcat) for port scanning
-        # '-z' for zero-I/O mode (scan for listening daemons)
-        # '-w 1' for a 1-second timeout
-        # '-v' for verbose output
-        command = ['nc', '-z', '-w', '1', host, str(port)]
-        result = subprocess.run(command, capture_output=True, text=True, timeout=5)
-        
-        if result.returncode == 0: # nc returns 0 if port is open
-            status = 'open'
-            output = result.stdout
-        else: # nc returns 1 if port is closed/filtered
-            status = 'closed'
-            output = result.stderr
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1) # 1-second timeout
+            result = s.connect_ex((host, port))
+            if result == 0:
+                status = 'open'
+                output = f"Port {port} is open on {host}"
+            else:
+                status = 'closed'
+                output = f"Port {port} is closed or filtered on {host}"
 
         return jsonify({'host': host, 'port': port, 'status': status, 'raw_output': output}), 200
 
-    except subprocess.TimeoutExpired:
-        return jsonify({'host': host, 'port': port, 'status': 'closed', 'error': 'Port scan timed out'}), 504
+    except socket.gaierror:
+        return jsonify({'host': host, 'port': port, 'status': 'error', 'error': 'Hostname could not be resolved'}), 400
     except Exception as e:
         return jsonify({'host': host, 'port': port, 'status': 'error', 'error': str(e)}), 500
 
@@ -184,10 +208,11 @@ def traceroute_host():
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json()
-    if not data or 'host' not in data:
-        return jsonify({"error": "Host to trace is required"}), 400
+    host = data.get('host')
 
-    host = data['host']
+    if not is_valid_host(host):
+        return jsonify({"error": "Invalid or malicious host provided"}), 400
+
     command = ['tracert' if platform.system().lower() == 'windows' else 'traceroute', host]
 
     try:

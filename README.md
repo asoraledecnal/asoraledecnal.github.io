@@ -45,85 +45,73 @@ Project Vantage is a web application designed to provide a user-friendly dashboa
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/asoraledecnal/asoraledecnal.github.io.git
-    cd asoraledecnal.github.io 
+    git clone https://github.com/your-username/project-vantage.git
+    cd project-vantage
     ```
-    *(Note: It is recommended to use a dedicated repository for this project rather than a GitHub Pages user repository, but these instructions will work within the current structure.)*
 
-2.  **Create and Activate a Virtual Environment:**
-    It is highly recommended to use a virtual environment to manage project dependencies.
-    
+2.  **Set Up the Backend:**
+    Navigate to the backend directory to set up the environment and dependencies.
+    ```bash
+    cd backend
+    ```
+
+3.  **Create and Activate a Virtual Environment:**
     *   **Windows (PowerShell):**
         ```powershell
-        # Create the environment
         python -m venv .venv
-        # Activate the environment
         .\.venv\Scripts\Activate.ps1
         ```
-    *   **macOS / Linux (Bash):**
+    *   **macOS / Linux (Bash):-**
         ```bash
-        # Create the environment
         python3 -m venv .venv
-        # Activate the environment
         source .venv/bin/activate
         ```
 
-3.  **Install Dependencies:**
-    Install all required Python packages from the `requirements.txt` file.
+4.  **Install Dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Initialize the Database:**
-    Before running the server for the first time, create the database schema.
+5.  **Initialize the Database:**
+    From the `backend` directory:
+    ```bash
+    # Set the Flask app environment variable
+    export FLASK_APP=app.py # (Use 'set FLASK_APP=app.py' in Windows CMD)
     
-    *   **Windows (PowerShell):**
-        ```powershell
-        # In a terminal with the virtual environment activated:
-        flask shell
+    # Run the shell
+    flask shell
+    ```
+    In the Python shell (`>>>`), run:
+    ```python
+    from app import db
+    db.create_all()
+    exit()
+    ```
+    This will create a `database.db` file inside the `backend` directory.
 
-        # In the Python shell (>>>), run:
-        from app import db
-        db.create_all()
-        exit()
-        ```
-    *   **macOS / Linux (Bash):**
-        ```bash
-        # In a terminal with the virtual environment activated:
-        flask shell
-
-        # In the Python shell (>>>), run:
-        from app import db
-        db.create_all()
-        exit()
-        ```
-    This will create a `database.db` file in the project's root directory.
-
-5.  **Run the Backend Development Server:**
-    Start the Flask application.
+6.  **Run the Backend Development Server:**
     ```bash
     flask run --debug
     ```
     The backend will be running on `http://127.0.0.1:5000`. Keep this terminal open.
 
-6.  **Launch the Frontend:**
-    Open the `index.html` file in a web browser to view and interact with the application.
+7.  **Launch the Frontend:**
+    In a separate terminal, navigate to the `frontend` directory and open the `index.html` file in a web browser.
+    ```bash
+    cd ../frontend
+    # open index.html
+    ```
 
 ---
 
 ## Deployment Strategy
 
-This application consists of a separate frontend and backend, which should be deployed independently.
-
 ### Backend Deployment (e.g., on Render)
-1.  Ensure all code, including `app.py` and `requirements.txt`, is pushed to a GitHub repository.
-2.  Create a new "Web Service" on a platform like Render and connect it to the repository.
-3.  Use the following configuration settings during setup:
-    *   **Build Command:** `pip install -r requirements.txt`
-    *   **Start Command:** `gunicorn app:app`
-4.  After deployment, Render will provide a public URL for the backend API.
+1.  Ensure all code is pushed to a GitHub repository.
+2.  Create a new "Web Service" on Render and connect it to the repository.
+3.  Render will automatically detect the `render.yaml` file and configure the service. It uses the `backend/Dockerfile` to build and deploy the application.
 
-### Frontend Deployment (e.g., on GitHub Pages)
-1.  The static files (`.html`, `.css`, `.js`, images) can be served by any static hosting provider.
-2.  If using GitHub Pages, these files simply need to be present in the root of the `asoraledecnal.github.io` repository.
-3.  **Crucially**, before deploying the final frontend, the `fetch` URLs in `script.js` must be updated from the local `http://127.0.0.1:5000` to the public backend URL provided by the hosting service (e.g., `https://project-vantage.onrender.com`).
+### Frontend Deployment (e.g., on GitHub Pages or Netlify)
+1.  The static files in the `frontend` directory can be served by any static hosting provider.
+2.  Point the hosting service to the `frontend` directory as the root/publish directory.
+3.  **Crucially**, before deploying, ensure the `BACKEND_URL` constant in `frontend/dashboard.js` and other JS files is updated from the local `http://127.0.0.1:5000` to the public backend URL provided by Render.
