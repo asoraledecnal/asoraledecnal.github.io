@@ -1,68 +1,64 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
+  const togglePasswordBtn = document.getElementById("toggle-password")
+  const passwordInput = document.getElementById("password")
 
-    // --- Configuration ---
-    // This should be the base URL of your deployed backend.
-    const BACKEND_URL = "https://project-vantage-backend-ih0i.onrender.com";
-    // For local testing, you would use:
-    // const BACKEND_URL = "http://127.0.0.1:5000";
+  if (togglePasswordBtn) {
+    togglePasswordBtn.addEventListener("click", (e) => {
+      e.preventDefault()
+      const type = passwordInput.getAttribute("type") === "password" ? "text" : "password"
+      passwordInput.setAttribute("type", type)
+    })
+  }
 
-    const signupForm = document.getElementById('signup-form');
-    const messageDiv = document.getElementById('message');
+  // --- Configuration ---
+  const BACKEND_URL = "https://project-vantage-backend-ih0i.onrender.com"
 
-    if (signupForm) {
-        signupForm.addEventListener('submit', async (event) => {
-            // Prevent the default form submission which reloads the page
-            event.preventDefault();
+  const signupForm = document.getElementById("signup-form")
+  const messageDiv = document.getElementById("message")
 
-            const email = signupForm.querySelector('#email').value;
-            const password = signupForm.querySelector('#password').value;
+  if (signupForm) {
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault()
 
-            // Clear any previous messages
-            if (messageDiv) {
-                messageDiv.textContent = '';
-                messageDiv.style.display = 'none';
-            }
+      const email = signupForm.querySelector("#email").value
+      const password = signupForm.querySelector("#password").value
 
-            try {
-                // Send the signup request to the backend
-                const response = await fetch(`${BACKEND_URL}/api/signup`, {
-                    method: 'POST',
-                    // This is crucial for sending cookies across domains,
-                    // though not strictly required for signup, it's good practice to include
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password }),
-                });
+      if (messageDiv) {
+        messageDiv.textContent = ""
+        messageDiv.style.display = "none"
+      }
 
-                const result = await response.json();
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/signup`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        })
 
-                if (messageDiv) {
-                    messageDiv.textContent = result.message;
-                    messageDiv.style.display = 'block';
-                }
+        const result = await response.json()
 
-                if (response.ok) {
-                    // On successful signup, show success message
-                    if (messageDiv) messageDiv.className = 'message success';
-                    signupForm.reset();
-                    // Optionally, you could redirect to the login page after a delay
-                    // setTimeout(() => { window.location.href = 'login.html'; }, 2000);
-                } else {
-                    // On failed signup (e.g., user exists), show error message
-                    if (messageDiv) messageDiv.className = 'message error';
-                }
+        if (messageDiv) {
+          messageDiv.textContent = result.message
+          messageDiv.style.display = "block"
+        }
 
-            } catch (error) {
-                // This catches network errors (e.g., backend is down)
-                console.error('Signup request error:', error);
-                if (messageDiv) {
-                    messageDiv.textContent = 'A network error occurred. Please try again.';
-                    messageDiv.className = 'message error';
-                    messageDiv.style.display = 'block';
-                }
-            }
-        });
-    }
-});
+        if (response.ok) {
+          if (messageDiv) messageDiv.className = "message success"
+          signupForm.reset()
+        } else {
+          if (messageDiv) messageDiv.className = "message error"
+        }
+      } catch (error) {
+        console.error("Signup request error:", error)
+        if (messageDiv) {
+          messageDiv.textContent = "A network error occurred. Please try again."
+          messageDiv.className = "message error"
+          messageDiv.style.display = "block"
+        }
+      }
+    })
+  }
+})

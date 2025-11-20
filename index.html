@@ -1,87 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@300;400;500;600;700&family=Jaro:opsz@6..72&display=swap" rel="stylesheet">
-    <title>Vantage</title>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vantage — Immersive Diagnostics Narrative</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<body>
-    <header>
-    <nav class="navbar">
-        <div class="logo">
-            <img src="Vantage Logo.png" alt="Vantage Logo">
+  <body>
+    <div class="texture-layer texture-layer--noise" aria-hidden="true"></div>
+    <div class="texture-layer texture-layer--vignette" aria-hidden="true"></div>
+
+    <header class="nav" id="site-header">
+      <div class="nav__logo">
+        <a href="#home" aria-label="Back to start">Vantage</a>
+      </div>
+
+      <button class="nav__toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="nav__links" id="nav-links">
+        <a href="#home">Home</a>
+        <a href="#about">Team</a>
+        <a href="#contact">Contact Us</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- HERO / INTRO -->
+      <section class="scene scene--hero" id="home" data-theme="dark">
+        <div class="hero-media">
+          <video
+            class="hero-media__video"
+            autoplay
+            muted
+            loop
+            playsinline
+            poster="assets/hero-poster.jpg"
+          >
+            <source src="assets/hero-loop.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <div class="hero-media__overlay"></div>
         </div>
 
-        <div class="right-container">
-            <!-- Hamburger for mobile -->
-            <div class="menu-toggle" id="mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
+        <div class="scene__inner scene__inner--hero">
+          <div class="hero-eyebrow">Vantage the network // Simplify everything.</div>
+          <h1 class="hero-title">
+            Immerse yourself in the evolution of intelligent diagnostics.
+          </h1>
+          <p class="hero-lede">
+            Each scroll panel reveals a new layer of the Vantage network information.
+          </p>
+          <div class="hero-actions">
+            <a href="login.html" class="btn btn--primary">Launch Console</a>
+            <a href="#origin" class="btn btn--ghost">Begin the journey</a>
+          </div>
+        </div>
+
+        <div class="scroll-indicator">
+          <span>Scroll</span>
+        </div>
+      </section>
+
+      <!-- WHAT IS VANTAGE? -->
+      <section class="scene scene--chapter" id="origin" data-theme="amber">
+        <div class="scene__inner">
+          <div class="chapter-meta">
+            <p class="chapter-tag">Chapter 01</p>
+            <p class="chapter-title">What is Vantage?</p>
+          </div>
+          <div class="chapter-body">
+            <p>
+              Vantage is a network monitoring and diagnostics tool that allows you to monitor and diagnose your network.
+            </p>
+            
+          </div>
+        </div>
+      </section>
+
+      <!-- STAKEHOLDERS -->
+      <section class="scene scene--chapter scene--media" id="signal" data-theme="cobalt">
+        <div class="scene__inner">
+          <div class="chapter-media">
+            <div class="media-frame">
+              <video autoplay muted loop playsinline poster="assets/signal-loop.png">
+                <source src="assets/signal-loop.mp4" type="video/mp4" />
+              </video>
+              <div class="media-gradient"></div>
+            </div>
+          </div>
+          <div class="chapter-body">
+            <div class="chapter-meta">
+              <p class="chapter-tag">Chapter 02</p>
+              <p class="chapter-title">Who are the Stakeholders?</p>
+            </div>
+            <p>
+              The stakeholders of Vantage are the users of the network.
+            </p>
+            
+          </div>
+        </div>
+      </section>
+
+      <!-- TEAM -->
+      <section class="scene scene--grid" id="about" data-theme="slate">
+        <div class="scene__inner">
+          <div class="chapter-meta">
+            <p class="chapter-tag">Chapter 03</p>
+            <p class="chapter-title">Vantage Architects</p>
+          </div>
+          <div class="grid">
+            <article class="grid-card">
+              <div class="grid-card__tag">Backend</div>
+              <h3>Lance Edward Dela Rosa</h3>
+              <p>
+                Orchestrates the underpinning infrastructure, database flow, and secure APIs that keep
+                the narrative honest.
+              </p>
+            </article>
+            <article class="grid-card">
+              <div class="grid-card__tag">Frontend / UX</div>
+              <h3>Franz Lloyd A. Diaz</h3>
+              <p>
+                Crafts the immersive storytelling, from cinematic pacing to GSAP timings and visual polish.
+              </p>
+            </article>
+            <article class="grid-card">
+              <div class="grid-card__tag">Project</div>
+              <h3>Cedric Laja</h3>
+              <p>
+                Keeps production aligned, manages timelines, and ensures each chapter lands with purpose.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section class="scene scene--contact" id="contact" data-theme="ember">
+        <div class="scene__inner">
+          <div class="chapter-meta">
+            <p class="chapter-tag">Final Chapter</p>
+            <p class="chapter-title">Send a Transmission</p>
+          </div>
+
+          <form id="contact-form" class="contact-form">
+            <div class="form-row">
+              <label for="contact-name">Your Name</label>
+              <input type="text" id="contact-name" name="name" placeholder="Jane Doe" required />
+            </div>
+            <div class="form-row">
+              <label for="contact-email">Email Address</label>
+              <input type="email" id="contact-email" name="email" placeholder="you@example.com" required />
+            </div>
+            <div class="form-row">
+              <label for="contact-subject">Subject</label>
+              <input type="text" id="contact-subject" name="subject" placeholder="Diagnostics request" required />
+            </div>
+            <div class="form-row">
+              <label for="contact-message">Message</label>
+              <textarea
+                id="contact-message"
+                name="message"
+                placeholder="Describe the story you want the network to tell..."
+                rows="5"
+                required
+              ></textarea>
             </div>
 
-            <ul class="nav-links">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="#">About</a></li>
-            </ul>
-            
+            <button type="submit" class="btn btn--primary btn--full">Transmit</button>
+            <div id="contact-message-div" class="form-feedback"></div>
+          </form>
         </div>
-    </nav>
-</header>
+      </section>
+    </main>
 
+    <footer class="site-footer">
+      <p>&copy; 2025 Vantage. Inspired by Corn Revolution, built for diagnostics.</p>
+    </footer>
 
-    <section class="hero">
-        <img src="Welcome to Vantage.png" alt="Welcome to Vantage" class="hero-image">
-    </section>
-
-    
-    <div class="get-started">
-    <a href="login.html" class="get-started-btn">Sign in</a>
-    </div>
-
-
-    <div class="useful-cardset">
-    <div class="useful-card">
-        <img src="https://drdavidhamilton.com/wp-content/uploads/2023/07/Interconnected_iStock-1356381571.jpg" alt="Networking Concepts">
-        <h3>Basic Networking Concepts</h3>
-        <p>Learn basic networking concepts.</p>
-    </div>
-    <div class="useful-card">
-        <img src="https://img.freepik.com/premium-photo/wireless-router-black-background_693425-3820.jpg" alt="Networking Devices">
-        <h3>Networking Devices</h3>
-        <p>Explore different types of network devices.</p>
-    </div>
-    <div class="useful-card">
-        <img src="https://img.freepik.com/premium-photo/black-background-with-white-image-network-connected-connected-connected-connected-wires_1071931-36176.jpg" alt="Network Connections">
-        <h3>Everything is Connected</h3>
-        <p>View how the networks are connected to each other.</p>
-    </div>
-     <div class="useful-card">
-        <img src="https://img.freepik.com/premium-photo/black-background-with-white-image-network-connected-connected-connected-connected-wires_1071931-36176.jpg" alt="Network Connections">
-        <h3>Everything is Connected</h3>
-        <p>View how the networks are connected to each other.</p>
-    </div>
-     <div class="useful-card">
-        <img src="https://img.freepik.com/premium-photo/black-background-with-white-image-network-connected-connected-connected-connected-wires_1071931-36176.jpg" alt="Network Connections">
-        <h3>Everything is Connected</h3>
-        <p>View how the networks are connected to each other.</p>
-    </div>
-</div>
-
-
-<!-- for the menubar script -->
-<script>
-const mobileMenu = document.getElementById('mobile-menu');
-const navLinks = document.querySelector('.nav-links');
-
-mobileMenu.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-});
-</script>
-
-</body>
+    <script src="https://unpkg.com/gsap@3/dist/gsap.min.js" defer></script>
+    <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js" defer></script>
+    <script src="main.js" defer></script>
+  </body>
 </html>
