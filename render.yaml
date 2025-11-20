@@ -2,9 +2,6 @@ services:
   - type: web
     name: project-vantage-backend
     env: python
-    packages:
-      - name: iputils-ping
-      - name: traceroute
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
     plan: free
