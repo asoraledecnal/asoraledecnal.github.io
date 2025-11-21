@@ -213,7 +213,7 @@ ul {
 
 .scene--hero {
   padding: calc(var(--nav-height) + 40px) clamp(24px, 6vw, 80px) clamp(80px, 10vw, 140px);
-  display: flex;
+  display: block;
   align-items: stretch;
 }
 
@@ -379,7 +379,7 @@ ul {
   min-height: 260px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 16px;    
 }
 
 .grid-card__tag {
@@ -396,6 +396,26 @@ ul {
 .grid-card p {
   color: var(--text-muted);
   line-height: 1.7;
+}
+
+.social-icons {
+  display: flex;
+  gap: 14px;
+  margin-top: auto;
+  align-items: center;
+}
+
+.social-icons img {
+  width: 30px;
+  height: 30px;
+  transition: 0.3s ease;
+  cursor: pointer;
+}
+
+.social-icons img:hover {
+  opacity: 1;
+  filter: brightness(1.3) drop-shadow(0 0 6px rgba(255,255,255,0.5));
+  transform: translateY(-2px);
 }
 
 /* --------------------------------------------------------------
@@ -534,10 +554,10 @@ ul {
 
 @media (max-width: 900px) {
   .nav__links {
-    position: absolute;
+    position: fixed; /* FIX: no longer affects layout */
     top: calc(var(--nav-height) + 16px);
     left: 50%;
-    transform: translate(-50%, -10%) scale(0.96);
+    transform: translateX(-50%) scale(0.96); /* FIX: removed vertical distortion */
     width: min(320px, calc(100% - 40px));
     flex-direction: column;
     align-items: center;
@@ -551,10 +571,11 @@ ul {
     opacity: 0;
     visibility: hidden;
     transition: transform 0.35s ease, opacity 0.35s ease;
+    z-index: 2000; /* stays above content */
   }
 
   .nav__links.is-open {
-    transform: translate(-50%, 0) scale(1);
+    transform: translateX(-50%) scale(1); /* FIX */
     opacity: 1;
     visibility: visible;
   }
@@ -576,6 +597,12 @@ ul {
 
   .scroll-indicator::after {
     margin: 12px auto 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .scene--hero {
+    align-items: center; /* FIX: keeps everything centered */
   }
 }
 
