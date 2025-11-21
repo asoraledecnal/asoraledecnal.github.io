@@ -247,7 +247,7 @@ def ping_host():
             'raw_output': raw_output_text,
             'success': ping_success
         }), 200
-
+#
     except Exception as e:
         error_output = f"Ping command failed: {str(e)}"
         new_ping_result = PingResults(
@@ -483,3 +483,4 @@ if __name__ == '__main__':
         db.create_all() # Create database tables for newly defined models
     app.run(debug=True)
 
+#Just to add in other developer
